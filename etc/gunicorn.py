@@ -1,6 +1,6 @@
 import multiprocessing
 
-bind = "localhost:5000"
+bind = ":5000"
 # 监听队列数量，64-2048
 backlog = 512
 # 使用gevent模式，还可以使用sync 模式，默认的是sync模式
@@ -13,10 +13,10 @@ threads = multiprocessing.cpu_count() * 4
 loglevel = 'info'
 access_log_format = '%(t)s %(p)s %(h)s "%(r)s" %(s)s %(L)s %(b)s %(f)s" "%(a)s"'
 # 访问日志文件
-# accesslog = "../logs/gunicorn_access.log"
-accesslog = '-'
+accesslog = "logs/gunicorn_access.log"
+# accesslog = '-'
 # 错误日志文件
-# errorlog = "../logs/gunicorn_error.log"
-errorlog = '-'
+errorlog = "logs/gunicorn_error.log"
+# errorlog = '-'
 # 进程名
 proc_name = 'wxqy_service_message'
