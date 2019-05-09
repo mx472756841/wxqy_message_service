@@ -1,4 +1,4 @@
-FROM python:3.6-alpine
+FROM python:3.6-alpine3.9
 
 # 构建redis
 # add our user and group first to make sure their IDs get assigned consistently, regardless of whatever dependencies get added
@@ -59,18 +59,17 @@ RUN set -ex; \
 
 RUN mkdir /data && chown redis:redis /data
 VOLUME /data
-WORKDIR /data
-
-EXPOSE 6379
-CMD ["redis-server"]
 
 # 构建本地代码
-COPY ./* wxqy_message_service
+COPY / /wxqy_message_service/
 
 WORKDIR /wxqy_message_service/
 
 RUN pip3 install -r requirements.txt -i https://mirrors.aliyun.com/pypi/simple \
-    && cp /usr/share/zoneinfo/Asia/Shanghai /etc/localtime \
+    && cp /usr/share/zoneinfo/Asia/Shanghai /etc/localtime
+
+
+COPY docker-entrypoint.sh /usr/local/bin/
+ENTRYPOINT ["docker-entrypoint.sh"]
 
 EXPOSE 5000
-CMD ["gunicorn", "manage:app", "-c", "etc/gunicorn.py"]
