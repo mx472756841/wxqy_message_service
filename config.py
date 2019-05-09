@@ -22,9 +22,8 @@ class Config:
     if not os.path.isdir(LOG_DIR):
         os.mkdir(LOG_DIR)
 
-    Log.LOG_PATH = LOG_DIR
-    Log.SERVICE_NAME = SERVICE_NAME
-    logging.config.dictConfig(Log.LOG_CONFIG_DICT)
+    log = Log(LOG_DIR, SERVICE_NAME)
+    logging.config.dictConfig(log.log_config_dict)
 
     # 缓存相关数据
     REDIS_HOST = "127.0.0.1"
