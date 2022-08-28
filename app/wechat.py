@@ -67,7 +67,7 @@ def send():
         to_users = req_data.get("to_users")
         to_partys = req_data.get("to_partys")
         to_tags = req_data.get("to_tags")
-        rs, msg = wx_req.send_msg(agent_id, send_data, msg_type, to_users, to_partys, to_tags)
+        rs, msg = wx_req.send_msg(send_data, msg_type, to_users, to_partys, to_tags)
         resp = {
             "code": 0 if rs else 1,
             "message": msg
