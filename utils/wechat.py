@@ -7,6 +7,7 @@
 """
 import logging
 import os
+
 import requests
 from flask import json
 
@@ -338,7 +339,7 @@ class WXRequest(BaseRequest):
         get_token: https://qydev.weixin.qq.com/wiki/index.php?title=%E4%B8%BB%E5%8A%A8%E8%B0%83%E7%94%A8
         send_msg: https://qydev.weixin.qq.com/wiki/index.php?title=%E5%8F%91%E9%80%81%E6%8E%A5%E5%8F%A3%E8%AF%B4%E6%98%8E
     """
-    _req = None
+    _req = dict()
 
     def __init__(self, wx_corpid, wx_agent_id, wx_secret):
         self.wx_corpid = wx_corpid
@@ -410,7 +411,7 @@ class WXRequest(BaseRequest):
 
         req_data = {
             "msgtype": msg_type,
-            "agentid": self.wx_agent_id,
+            "agentid": self.wx_,
             "safe": safe
         }
 
@@ -495,11 +496,11 @@ class WXRequest(BaseRequest):
 
     @classmethod
     def get_request(cls, agent_id):
-        if not cls._req:
+        if not cls._req.get(agent_id):
             config_name = os.getenv('FLASK_CONFIG') or 'default'
             use_config = config[config_name]
             wx_agent_mapping = use_config.WX_AGENT_SECRET_MAPPING
             if agent_id not in wx_agent_mapping:
                 raise Exception(f"not found agent id = {agent_id} in config")
-            cls._req = cls(use_config.WX_CORPID, agent_id, wx_agent_mapping[agent_id])
-        return cls._req
+            cls._req[agent_id] = cls(use_config.WX_CORPID, agent_id, wx_agent_mapping[agent_id])
+        return cls._req[agent_id]
