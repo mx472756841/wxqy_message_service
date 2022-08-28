@@ -39,6 +39,18 @@ class Config:
     WX_SECRET = os.getenv("WX_SECRET") or "wx_secret"
     # 可使用发送通知的Token,将符合的access_token配置到环境变量中  例如：123,456
     ACCESS_TOKEN = os.getenv("ACCESS_TOKEN", "").split(",") or []
+    # 配置多个 企业应用信息
+    WX_AGENT_IDS = os.getenv("WX_AGENT_IDS") or '1000002,1000004'
+    WX_AGENT_SECRETS = os.getenv("WX_AGENT_SECERET") or 'secret-1000002,secret-1000004'
+
+    # WX_AGENT_SECRET_MAPPING 企业微信，应用程序ID和应用secret映射，可支持多个应用程序发送
+    WX_AGENT_SECRET_MAPPING = {
+        DEFAULT_WX_AGENT_ID: WX_SECRET,
+    }
+    if WX_AGENT_IDS and WX_AGENT_SECRETS:
+        wx_agent_secrets = WX_AGENT_SECRETS.split(",")
+        for idx, agent_id in enumerate(WX_AGENT_IDS.split(",")):
+            WX_AGENT_SECRET_MAPPING[agent_id] = wx_agent_secrets[idx]
 
     @classmethod
     def init_app(cls, app):

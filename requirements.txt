@@ -1,5 +1,6 @@
-Flask
+Flask==1.1.4
 Flask-Script
 requests
 redis
 gunicorn
+MarkupSafe==1.1.1

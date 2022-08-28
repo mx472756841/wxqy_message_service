@@ -50,8 +50,6 @@ def send():
     """
     try:
         access_token = request.headers.get("AccessToken")
-        print(access_token)
-        print(current_app.config['ACCESS_TOKEN'])
         if access_token not in current_app.config['ACCESS_TOKEN']:
             resp = {
                 "code": 98,
@@ -61,9 +59,9 @@ def send():
 
         req_data = request.json
         # 获取访问微信接口对象
-        wx_req = WXRequest.get_request()
         #: 发送应用ID
         agent_id = req_data.get("agent_id", current_app.config['DEFAULT_WX_AGENT_ID'])
+        wx_req = WXRequest.get_request(agent_id)
         msg_type = req_data.get("msg_type")
         send_data = req_data.get("send_data")
         to_users = req_data.get("to_users")

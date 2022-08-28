@@ -1,13 +1,12 @@
 #!/usr/bin/python3
 # -*- coding: utf-8
-""" 
+"""
 @author: mx472756841@gmail.com
 @file: wechat.py
 @time: 2019/5/8 10:42
 """
 import logging
 import os
-
 import requests
 from flask import json
 
@@ -341,8 +340,9 @@ class WXRequest(BaseRequest):
     """
     _req = None
 
-    def __init__(self, wx_corpid, wx_secret):
+    def __init__(self, wx_corpid, wx_agent_id, wx_secret):
         self.wx_corpid = wx_corpid
+        self.wx_agent_id = wx_agent_id
         self.wx_secret = wx_secret
 
     def get_token(self):
@@ -352,10 +352,11 @@ class WXRequest(BaseRequest):
         """
         redis = RedisClient.get_client()
         url = "https://qyapi.weixin.qq.com/cgi-bin/gettoken?corpid=%s&corpsecret=%s" % (self.wx_corpid, self.wx_secret)
-        token = redis.get('wx_token')
+        cache_wx_token = f'wx_token:{self.wx_secret}'
+        token = redis.get(cache_wx_token)
         if not token:
             token, expires_in = self._get_token(url)
-            redis.set('wx_token', token, expires_in)
+            redis.set(cache_wx_token, token, expires_in)
             return token
         return token.decode("utf-8")
 
@@ -379,7 +380,7 @@ class WXRequest(BaseRequest):
             raise requests.exceptions.BaseHTTPError(err_msg)
         return access_token, expires_in
 
-    def send_msg(self, agentid, data, msg_type='text', touser=None, toparty=None, totag=None, safe=0):
+    def send_msg(self, data, msg_type='text', touser=None, toparty=None, totag=None, safe=0):
         """
         微信主动发送消息接口
         @agentid: 应用ID
@@ -409,7 +410,7 @@ class WXRequest(BaseRequest):
 
         req_data = {
             "msgtype": msg_type,
-            "agentid": agentid,
+            "agentid": self.wx_agent_id,
             "safe": safe
         }
 
@@ -493,10 +494,12 @@ class WXRequest(BaseRequest):
         return False, "下载失败"
 
     @classmethod
-    def get_request(cls):
+    def get_request(cls, agent_id):
         if not cls._req:
             config_name = os.getenv('FLASK_CONFIG') or 'default'
             use_config = config[config_name]
-
-            cls._req = cls(use_config.WX_CORPID, use_config.WX_SECRET)
+            wx_agent_mapping = use_config.WX_AGENT_SECRET_MAPPING
+            if agent_id not in wx_agent_mapping:
+                raise Exception(f"not found agent id = {agent_id} in config")
+            cls._req = cls(use_config.WX_CORPID, agent_id, wx_agent_mapping[agent_id])
         return cls._req
